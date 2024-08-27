@@ -1,14 +1,16 @@
-import { Type } from "class-transformer";
-import { IsString } from "class-validator";
-import { Category } from "src/entity/category/entities/category.entity";
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { Category } from 'src/entity/category/entities/category.entity';
 
 export class CreateTaskDto {
-    @IsString()
-    name: string;
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
-    @IsString()
-    description: string;
+  @IsString()
+  description: string;
 
-    @Type(() => Category)
-    category: Category;
+  @IsArray()
+  @IsNotEmpty()
+  @IsString({ each: true })
+  category: Category[];
 }

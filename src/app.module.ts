@@ -4,9 +4,17 @@ import { AppService } from './app.service';
 import { UserModule } from './entity/user/user.module';
 import { TaskModule } from './entity/task/task.module';
 import { CategoryModule } from './entity/category/category.module';
+import { DatabaseModule } from './database/database.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [UserModule, TaskModule, CategoryModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    UserModule,
+    TaskModule,
+    CategoryModule,
+    DatabaseModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
