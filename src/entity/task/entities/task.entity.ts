@@ -3,9 +3,14 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { User } from 'src/entity/user/entities/user.entity';
+import { Category } from 'src/entity/category/entities/category.entity';
 
 @Entity()
 export class Task {
@@ -29,4 +34,11 @@ export class Task {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @ManyToOne(() => User, (user) => user.tasks)
+  user: User;
+
+  @ManyToMany(() => Category)
+  @JoinTable()
+  categories: Category[];
 }

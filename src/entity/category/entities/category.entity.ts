@@ -29,5 +29,5 @@ export class Category {
 
   @ManyToMany(() => Task)
   @JoinTable()
-  task: Task[];
+  tasks: Task[];
 }
