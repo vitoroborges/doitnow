@@ -2,27 +2,71 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, Repository } from 'typeorm';
+import { In, LessThan, Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
+import { Category } from '../category/entities/category.entity';
 
 @Injectable()
 export class TaskService {
   constructor(
     @InjectRepository(Task) private readonly taskRepository: Repository<Task>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
   ) {}
 
-  create(createTaskDto: CreateTaskDto): Promise<Task> {
-    const task = this.taskRepository.create({ ...createTaskDto });
+  async create(createTaskDto: CreateTaskDto): Promise<Task> {
+    const categories = await this.categoryRepository.find({
+      where: {
+        id: In(createTaskDto.category),
+      },
+    });
+    const task = this.taskRepository.create({
+      ...createTaskDto,
+      categories: categories,
+    });
     return this.taskRepository.save(task);
   }
 
   async findAll(): Promise<Task[]> {
-    const tasks = await this.taskRepository.find();
+    const tasks = await this.taskRepository.find({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        status: true,
+        user: {
+          id: true,
+        },
+        categories: {
+          id: true,
+          name: true,
+        },
+      },
+      relations: ['categories', 'user'],
+    });
     return tasks;
   }
 
-  async findOne(id: string): Promise<Task> {
-    const task = await this.taskRepository.findOneBy({ id: id });
+  async findOne(id: string): Promise<Task[]> {
+    const task = await this.taskRepository.find({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        status: true,
+        user: {
+          id: true,
+        },
+        categories: {
+          id: true,
+          name: true,
+        },
+      },
+      where: {
+        id: id,
+      },
+      relations: ['categories', 'user'],
+    });
     if (!task) {
       throw new NotFoundException('Task Not Found');
     } else {
@@ -31,6 +75,11 @@ export class TaskService {
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
+    const categories = await this.categoryRepository.find({
+      where: {
+        id: In(updateTaskDto.category),
+      },
+    });
     const task = await this.findOne(id);
     if (!task) {
       throw new NotFoundException('Task Not Found');
@@ -38,12 +87,13 @@ export class TaskService {
       const updatedTask = await this.taskRepository.preload({
         id: id,
         ...updateTaskDto,
+        categories: categories,
       });
       return await this.taskRepository.save(updatedTask);
     }
   }
 
-  async remove(id: string): Promise<Task> {
+  async remove(id: string): Promise<Task[]> {
     const task = await this.findOne(id);
     if (!task) {
       throw new NotFoundException('Task Not Found');
@@ -54,11 +104,25 @@ export class TaskService {
 
   async findByCategory(id: string): Promise<Task[]> {
     const tasks = await this.taskRepository.find({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        status: true,
+        user: {
+          id: true,
+        },
+        categories: {
+          id: true,
+          name: true,
+        },
+      },
       where: {
         categories: {
           id: id,
         },
       },
+      relations: ['categories', 'user'],
       order: {
         categories: {
           name: 'ASC',
@@ -72,9 +136,23 @@ export class TaskService {
 
   async findByStatus(status: string): Promise<Task[]> {
     const tasks = await this.taskRepository.find({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        status: true,
+        user: {
+          id: true,
+        },
+        categories: {
+          id: true,
+          name: true,
+        },
+      },
       where: {
         status: status,
       },
+      relations: ['categories', 'user'],
       order: {
         status: 'ASC',
       },
@@ -87,10 +165,25 @@ export class TaskService {
 
   async findByDatetimeASC(): Promise<Task[]> {
     const today = new Date();
+    console.log(today);
     const tasks = await this.taskRepository.find({
-      where: {
-        createdAt: LessThan(today),
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        status: true,
+        user: {
+          id: true,
+        },
+        categories: {
+          id: true,
+          name: true,
+        },
       },
+      where: {
+        createdAt: LessThan(new Date()),
+      },
+      relations: ['categories', 'user'],
       order: {
         createdAt: 'ASC',
       },
@@ -104,9 +197,23 @@ export class TaskService {
   async findByDatetimeDESC(): Promise<Task[]> {
     const today = new Date();
     const tasks = await this.taskRepository.find({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        status: true,
+        user: {
+          id: true,
+        },
+        categories: {
+          id: true,
+          name: true,
+        },
+      },
       where: {
         createdAt: LessThan(today),
       },
+      relations: ['categories', 'user'],
       order: {
         createdAt: 'DESC',
       },

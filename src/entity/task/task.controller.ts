@@ -30,33 +30,33 @@ export class TaskController {
     return await this.taskService.findOne(id);
   }
 
-  @Get(':category')
+  @Get('category/:category')
   async findByCategory(@Param('category') categoryId: string) {
     return await this.taskService.findByCategory(categoryId);
   }
 
-  @Get(':status')
+  @Get('status/:status')
   async findByStatus(@Param('status') status: string) {
     return await this.taskService.findByStatus(status);
   }
 
-  @Get('/dateasc')
+  @Get('dateasc')
   async findByDateASC() {
     return await this.taskService.findByDatetimeASC();
   }
 
-  @Get('/datedesc')
+  @Get('datedesc')
   async findByDateDESC() {
-    return this.taskService.findByDatetimeDESC();
+    return await this.taskService.findByDatetimeDESC();
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.taskService.update(id, updateTaskDto);
+  async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
+    return await this.taskService.update(id, updateTaskDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.taskService.remove(id);
+  async remove(@Param('id') id: string) {
+    return await this.taskService.remove(id);
   }
 }
