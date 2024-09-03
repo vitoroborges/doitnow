@@ -35,10 +35,10 @@ export class User {
   @Column()
   password: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz', precision: 3 })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz', precision: 3 })
   updatedAt: Date;
 
   @OneToMany(() => Task, (task) => task.user)

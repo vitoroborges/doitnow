@@ -4,7 +4,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -18,16 +17,15 @@ export class Category {
   @Column()
   name: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz', precision: 3 })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz', precision: 3 })
   updatedAt: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ type: 'timestamptz', precision: 3 })
   deletedAt: Date;
 
-  @ManyToMany(() => Task)
-  @JoinTable()
+  @ManyToMany(() => Task, (task) => task.categories)
   tasks: Task[];
 }

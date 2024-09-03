@@ -26,19 +26,19 @@ export class Task {
   @Column()
   status: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz', precision: 3 })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz', precision: 3 })
   updatedAt: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ type: 'timestamptz', precision: 3 })
   deletedAt: Date;
 
   @ManyToOne(() => User, (user) => user.tasks)
   user: User;
 
-  @ManyToMany(() => Category)
+  @ManyToMany(() => Category, (category) => category.tasks)
   @JoinTable()
   categories: Category[];
 }
