@@ -40,12 +40,12 @@ export class TaskController {
     return await this.taskService.findByStatus(status);
   }
 
-  @Get('dateasc')
+  @Get('sort/asc')
   async findByDateASC() {
     return await this.taskService.findByDatetimeASC();
   }
 
-  @Get('datedesc')
+  @Get('sort/desc')
   async findByDateDESC() {
     return await this.taskService.findByDatetimeDESC();
   }
