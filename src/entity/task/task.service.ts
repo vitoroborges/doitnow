@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,16 +19,22 @@ export class TaskService {
   ) {}
 
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
-    const categories = await this.categoryRepository.find({
-      where: {
-        id: In(createTaskDto.category),
-      },
-    });
-    const task = this.taskRepository.create({
-      ...createTaskDto,
-      categories: categories,
-    });
-    return this.taskRepository.save(task);
+    if (createTaskDto.description.length > 10) {
+      const categories = await this.categoryRepository.find({
+        where: {
+          id: In(createTaskDto.category),
+        },
+      });
+      const task = this.taskRepository.create({
+        ...createTaskDto,
+        categories: categories,
+      });
+      return this.taskRepository.save(task);
+    } else {
+      throw new ForbiddenException(
+        'Description Have To Be More Than 10 Caracters',
+      );
+    }
   }
 
   async findAll(): Promise<Task[]> {
@@ -47,15 +57,17 @@ export class TaskService {
     return tasks;
   }
 
-  async findOne(id: string): Promise<Task[]> {
-    const task = await this.taskRepository.find({
+  async findOne(id: string): Promise<Task> {
+    const task = await this.taskRepository.findOne({
       select: {
         id: true,
         name: true,
         description: true,
         status: true,
+        createdAt: true,
         user: {
           id: true,
+          username: true,
         },
         categories: {
           id: true,
@@ -75,25 +87,31 @@ export class TaskService {
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
-    const categories = await this.categoryRepository.find({
-      where: {
-        id: In(updateTaskDto.category),
-      },
-    });
-    const task = await this.findOne(id);
-    if (!task) {
-      throw new NotFoundException('Task Not Found');
-    } else {
-      const updatedTask = await this.taskRepository.preload({
-        id: id,
-        ...updateTaskDto,
-        categories: categories,
+    if (updateTaskDto.description.length > 10) {
+      const categories = await this.categoryRepository.find({
+        where: {
+          id: In(updateTaskDto.category),
+        },
       });
-      return await this.taskRepository.save(updatedTask);
+      const task = await this.findOne(id);
+      if (!task) {
+        throw new NotFoundException('Task Not Found');
+      } else {
+        const updatedTask = await this.taskRepository.preload({
+          id: id,
+          ...updateTaskDto,
+          categories: categories,
+        });
+        return await this.taskRepository.save(updatedTask);
+      }
+    } else {
+      throw new ForbiddenException(
+        'Description Have To Be More Than 10 Caracters',
+      );
     }
   }
 
-  async remove(id: string): Promise<Task[]> {
+  async remove(id: string): Promise<Task> {
     const task = await this.findOne(id);
     if (!task) {
       throw new NotFoundException('Task Not Found');
@@ -165,13 +183,13 @@ export class TaskService {
 
   async findByDatetimeASC(): Promise<Task[]> {
     const today = new Date();
-    console.log(today);
     const tasks = await this.taskRepository.find({
       select: {
         id: true,
         name: true,
         description: true,
         status: true,
+        createdAt: true,
         user: {
           id: true,
         },
@@ -181,12 +199,9 @@ export class TaskService {
         },
       },
       where: {
-        createdAt: LessThan(new Date()),
+        createdAt: LessThan(today),
       },
       relations: ['categories', 'user'],
-      order: {
-        createdAt: 'ASC',
-      },
     });
 
     if (!tasks) throw new NotFoundException('Tasks Not Found');
@@ -202,6 +217,7 @@ export class TaskService {
         name: true,
         description: true,
         status: true,
+        createdAt: true,
         user: {
           id: true,
         },
