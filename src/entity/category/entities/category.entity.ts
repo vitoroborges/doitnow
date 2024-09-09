@@ -2,14 +2,15 @@ import { Task } from 'src/entity/task/entities/task.entity';
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity()
+@Unique(['name'])
 export class Category {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -22,9 +23,6 @@ export class Category {
 
   @UpdateDateColumn({ type: 'timestamptz', precision: 3 })
   updatedAt: Date;
-
-  @DeleteDateColumn({ type: 'timestamptz', precision: 3 })
-  deletedAt: Date;
 
   @ManyToMany(() => Task, (task) => task.categories)
   tasks: Task[];

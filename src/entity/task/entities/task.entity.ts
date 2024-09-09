@@ -1,7 +1,6 @@
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
@@ -31,9 +30,6 @@ export class Task {
 
   @UpdateDateColumn({ type: 'timestamptz', precision: 3 })
   updatedAt: Date;
-
-  @DeleteDateColumn({ type: 'timestamptz', precision: 3 })
-  deletedAt: Date;
 
   @ManyToOne(() => User, (user) => user.tasks)
   user: User;
