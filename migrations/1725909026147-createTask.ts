@@ -1,10 +1,15 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
-export class CreateUser1725480531050 implements MigrationInterface {
+export class CreateTask1725909026147 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'user',
+        name: 'task',
         columns: [
           {
             name: 'id',
@@ -14,19 +19,23 @@ export class CreateUser1725480531050 implements MigrationInterface {
             default: 'uuid_generate_v4()',
           },
           {
-            name: 'username',
+            name: 'name',
             type: 'varchar(200)',
             isNullable: false,
           },
           {
-            name: 'email',
-            type: 'varchar(200)',
-            isUnique: true,
+            name: 'description',
+            type: 'varchar(250)',
+            isNullable: true,
+          },
+          {
+            name: 'status',
+            type: 'varchar(50)',
             isNullable: false,
           },
           {
-            name: 'password',
-            type: 'varchar(72)',
+            name: 'user_id',
+            type: 'uuid',
             isNullable: false,
           },
           {
@@ -42,18 +51,20 @@ export class CreateUser1725480531050 implements MigrationInterface {
             onUpdate: 'CURRENT_TIMESTAMP',
             isNullable: false,
           },
-          {
-            name: 'deleted_at',
-            type: 'timestampz',
-            default: 'null',
-            isNullable: true
-          },
+        ],
+        foreignKeys: [
+          new TableForeignKey({
+            columnNames: ['user_id'],
+            referencedColumnNames: ['id'],
+            referencedTableName: 'user',
+            onDelete: 'SET NULL',
+          }),
         ],
       }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('user');
+    await queryRunner.dropTable('task');
   }
 }
